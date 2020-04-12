@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap');
+import { createGlobalStyle } from "styled-components";
+
+export const GlobalStyle = createGlobalStyle`
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 * {
     margin: 0;
@@ -80,3 +83,4 @@ form textarea {
 .back-link:hover {
     opacity: 0.8;
 }
+`;
