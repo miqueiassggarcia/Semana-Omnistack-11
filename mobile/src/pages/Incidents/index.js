@@ -1,96 +1,105 @@
-import React, { useEffect, useState } from 'react';
-import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { View, FlatList, Image, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-import api from '../../services/api';
+import api from "../../services/api";
 
-import logoImg from '../../assets/logo.png';
+import logoImg from "../../assets/logo.png";
 
-import styles from './styles';
+import {
+  Container,
+  Header,
+  ImageHeader,
+  TextHeader,
+  TextHeaderBold,
+  Title,
+  Description,
+  IncidentList,
+  IncidentsDetails,
+  IncidentProperty,
+  IncidentValue,
+  ButtonDetials,
+  ButtonTextDetails,
+} from "./styles";
 
 export default function Incidents() {
-    const [incidents, setIncidents] = useState([]);
-    const [total, setTotal] = useState(0);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
+  const [incidents, setIncidents] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
-    function navigateToDetail(incident) {
-        navigation.navigate('Detail', { incident });
+  function navigateToDetail(incident) {
+    navigation.navigate("Detail", { incident });
+  }
+
+  async function loadIncidents() {
+    if (loading) {
+      return;
     }
 
-    async function loadIncidents() {
-        if(loading) {
-            return;
-        }
-
-        if(total > 0 && incidents.length === total) {
-            return;
-        }
-
-        setLoading(true);
-
-        const response = await api.get('incidents', {
-            params: { page }
-        });
-
-        setIncidents([...incidents, ...response.data]);
-        setTotal(response.headers['x-total-count'])
-        setPage(page + 1);
-        setLoading(false);
+    if (total > 0 && incidents.length === total) {
+      return;
     }
 
-    useEffect(() => {
-        loadIncidents();
-    }, []);
+    setLoading(true);
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Image source={logoImg} />
-                <Text style={styles.headerText}>
-                    Total de <Text style={styles.headerTextBold}>{total} casos.</Text>
-                </Text>
-            </View>
+    const response = await api.get("incidents", {
+      params: { page },
+    });
 
-            <Text style={styles.title}>Bem-vindo!</Text>
-            <Text style={styles.description}>Escolha um dos casos abaixo e salve o dia</Text>
+    setIncidents([...incidents, ...response.data]);
+    setTotal(response.headers["x-total-count"]);
+    setPage(page + 1);
+    setLoading(false);
+  }
 
-            <FlatList 
-                style={styles.incidentList}
-                data={incidents}
-                keyExtractor={incident => String(incident.id)}
-                showsVerticalScrollIndicator={false}
-                onEndReached={loadIncidents}
-                onEndReachedThreshold={0.2}
-                renderItem={({ item: incident }) => (
-                    <View style={styles.incident}>
-                        <Text style={styles.incidentProperty}>ONG:</Text>
-                        <Text style={styles.incidentValue}>{incident.name}</Text>
+  useEffect(() => {
+    loadIncidents();
+  }, []);
 
-                        <Text style={styles.incidentProperty}>CASO:</Text>
-                        <Text style={styles.incidentValue}>{incident.title}</Text>
+  return (
+    <Container>
+      <Header>
+        <ImageHeader source={logoImg} />
+        <TextHeader>
+          Total de <TextHeaderBold>{total} casos.</TextHeaderBold>
+        </TextHeader>
+      </Header>
 
-                        <Text style={styles.incidentProperty}>VALOR:</Text>
-                        <Text style={styles.incidentValue}>
-                            {Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL'
-                            }).format(incident.value)}
-                        </Text>
+      <Title>Bem-vindo!</Title>
+      <Description>Escolha um dos casos abaixo e salve o dia</Description>
 
-                        <TouchableOpacity
-                            style={styles.detailsButton}
-                            onPress={() => navigateToDetail(incident)}
-                        >
-                            <Text style={styles.detailsButtonText}>Ver mais detalhes</Text>
-                            <Feather name="arrow-right" size={16} color="#E02041" />
-                        </TouchableOpacity>
-                    </View>
-                )}
-            />
-        </View>
-    );
+      <IncidentList
+        data={incidents}
+        keyExtractor={(incident) => String(incident.id)}
+        showsVerticalScrollIndicator={false}
+        onEndReached={loadIncidents}
+        onEndReachedThreshold={0.2}
+        renderItem={({ item: incident }) => (
+          <IncidentsDetails>
+            <IncidentProperty>ONG:</IncidentProperty>
+            <IncidentValue>{incident.name}</IncidentValue>
+
+            <IncidentProperty>CASO:</IncidentProperty>
+            <IncidentValue>{incident.title}</IncidentValue>
+
+            <IncidentProperty>VALOR:</IncidentProperty>
+            <IncidentValue>
+              {Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(incident.value)}
+            </IncidentValue>
+
+            <ButtonDetials onPress={() => navigateToDetail(incident)}>
+              <ButtonTextDetails>Ver mais detalhes</ButtonTextDetails>
+              <Feather name="arrow-right" size={16} color="#E02041" />
+            </ButtonDetials>
+          </IncidentsDetails>
+        )}
+      />
+    </Container>
+  );
 }
